@@ -1,0 +1,14 @@
+docker ps --all
+//เช็คสถานะ container
+docker run busybox ping google.com
+//run container แบบ background
+docker stop CONTAINER ID
+docker rm CONTAINER ID
+docker run nginx
+docker pull busybox
+docker create busybox ping google.com
+docker exec -it container sh ping google.com
+docker ps
+docker run -d -p 9001:80 nginx
+docker run -p 80:80 nginx 
+docker run -p 9000:80 nginx 
