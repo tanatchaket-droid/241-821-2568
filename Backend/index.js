@@ -1,61 +1,40 @@
 const express = require('express');
 const bodyParser = require('body-parser');
-const app =express();
+const mysql = require('mysql2/promise');
+const app = express();
 const port = 8000
+
 app.use(bodyParser.json());
-let users =[]
-let counter = 1;
 
-app.get('/users', (req, res) => {
-    res.json(users);
-});
+let conn = null
+const initDBConnection = async () => {
+    conn = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'root',
+        database: 'webdb',
+        port: 8821
+    })
+}
 
-//path = POST
-app.post('/user', (req, res) => {
+//path = GET / users เก็บข้อมูลทั้งหมดในรูปแบบ JSON
+app.get('/users',async (req, res) => {
+    const results = await conn.query('SELECT * FROM users');
+    res.json(results[0]);
+})
+
+app.post('/users', async (req, res) => {
     let user = req.body;
-    user.id = counter
-    counter += 1;
-    users.push(user);
+    const results = await conn.query('INSERT INTO users SET ?', user);
+    console.log('results', results);
     res.json({
-        message: 'User added successfully',
-        user: user});
-})
-
-app.patch('/user/:id', (req, res) => {
-    let id = req.params.id;
-    let updatedUser = req.body;
-    let seletedIndex = users.findIndex(user => user.id == id);
-    if(updatedUser.name){
-        users[seletedIndex].name = updatedUser.name;
-    }
-    if(updatedUser.email){
-        users[seletedIndex].email = updatedUser.email;
-    }
-
-    )
-
-    users[seletedIndex].name = updatedUser.name || users[seletedIndex].name;
-    users[seletedIndex].email = updatedUser.email || users[seletedIndex].email;
-
-    res.json({
-         message: 'User updated successfully',
-        data:{
-            user: updatedUser,
-            indexUpdated: seletedIndex
-        }
+        message:'User created successfully',
+        data: results[0]    
     });
 })
-app.delete('/user/:id', (req, res) => {
-    let id = req.params.id;
-    let seletedIndex = users.findIndex(user => user.id == id);
-    delete users[seletedIndex];
-    users.splice(seletedIndex, 1);
 
-    res.json({  
-        message: 'User deleted successfully',
-        indexDeleted: seletedIndex
-    });
 
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+app.listen(port, async () => {
+    await initDBConnection ();
+    console.log(`Server is running on port ${port}`)
 });
