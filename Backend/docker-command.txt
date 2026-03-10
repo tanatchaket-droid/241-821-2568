@@ -12,3 +12,4 @@ docker ps
 docker run -d -p 9001:80 nginx
 docker run -p 80:80 nginx 
 docker run -p 9000:80 nginx 
+docker compose up -d
